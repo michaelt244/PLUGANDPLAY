@@ -1,4 +1,4 @@
-import Anthropic from '@anthropic-ai/sdk';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { AdVariant } from './supabase';
 
 const SYSTEM_PROMPT = `You are an expert social media copywriter for small local businesses.
@@ -27,39 +27,26 @@ Tone: ${params.tone}
 Write 3 ad variants for this photo.${strictNote}`;
 }
 
-async function callClaude(
-  client: Anthropic,
+async function callGemini(
+  model: ReturnType<GoogleGenerativeAI['getGenerativeModel']>,
   photoUrl: string,
   params: { businessName: string; adGoal: string; tone: string },
   strict = false
 ): Promise<AdVariant[]> {
-  const response = await client.messages.create({
-    model: 'claude-sonnet-4-6',
-    max_tokens: 1024,
-    system: SYSTEM_PROMPT,
-    messages: [
-      {
-        role: 'user',
-        content: [
-          {
-            type: 'image',
-            source: { type: 'url', url: photoUrl },
-          },
-          {
-            type: 'text',
-            text: buildUserPrompt({ ...params, strict }),
-          },
-        ],
-      },
-    ],
-  });
+  const imageResp = await fetch(photoUrl);
+  const imageBuffer = await imageResp.arrayBuffer();
+  const base64 = Buffer.from(imageBuffer).toString('base64');
+  const mimeType = (imageResp.headers.get('content-type') ?? 'image/jpeg') as 'image/jpeg' | 'image/png' | 'image/webp';
 
-  const textBlock = response.content.find((b) => b.type === 'text');
-  if (!textBlock || textBlock.type !== 'text') {
-    throw new Error('Claude returned no text block');
-  }
+  const result = await model.generateContent([
+    { text: SYSTEM_PROMPT },
+    { inlineData: { mimeType, data: base64 } },
+    { text: buildUserPrompt({ ...params, strict }) },
+  ]);
 
-  return JSON.parse(textBlock.text) as AdVariant[];
+  const text = result.response.text().trim();
+  const json = text.startsWith('[') ? text : text.slice(text.indexOf('['));
+  return JSON.parse(json) as AdVariant[];
 }
 
 export async function generateAdVariants(params: {
@@ -68,11 +55,12 @@ export async function generateAdVariants(params: {
   adGoal: string;
   tone: 'energetic' | 'professional' | 'warm';
 }): Promise<AdVariant[]> {
-  const client = new Anthropic();
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
   const { photoUrl, ...context } = params;
   try {
-    return await callClaude(client, photoUrl, context);
+    return await callGemini(model, photoUrl, context);
   } catch {
-    return await callClaude(client, photoUrl, context, true);
+    return await callGemini(model, photoUrl, context, true);
   }
 }
