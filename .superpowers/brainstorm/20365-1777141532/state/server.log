@@ -20,3 +20,4 @@
 {"source":"user-event","type":"click","text":"B\n    \n      Dashboard with Tabs\n      Full product dashboard: Scan | Generate | Dispatch | Track | Retain tabs. Shows the whole platform scope at a glance. More impressive as a product vision.\n      \n        ProsShows full platformReal product feelEasy to navigate\n        ConsMore to buildDemo story less linear","choice":"b","id":null,"timestamp":1777141902882}
 {"type":"screen-added","file":"/Users/michaeltiburcio/PLUGANDPLAY/.superpowers/brainstorm/20365-1777141532/content/wizard-wireframe.html"}
 {"type":"screen-added","file":"/Users/michaeltiburcio/PLUGANDPLAY/.superpowers/brainstorm/20365-1777141532/content/final-design.html"}
+{"type":"server-stopped","reason":"idle timeout"}
