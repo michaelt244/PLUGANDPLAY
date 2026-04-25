@@ -6,18 +6,18 @@ const mockVariants = [
   { label: 'C', copy: 'Summer Barre Special: 20% off first month. Book now.', platform: 'google_business' },
 ];
 
-const mockCreate = jest.fn().mockResolvedValue({
-  content: [{ type: 'text', text: JSON.stringify(mockVariants) }],
+const mockGenerateContent = jest.fn().mockResolvedValue({
+  response: { text: () => JSON.stringify(mockVariants) },
 });
 
-jest.mock('@anthropic-ai/sdk', () => ({
-  __esModule: true,
-  default: jest.fn().mockImplementation(() => ({
-    messages: { create: mockCreate },
+jest.mock('@google/generative-ai', () => ({
+  GoogleGenerativeAI: jest.fn().mockImplementation(() => ({
+    getGenerativeModel: jest.fn().mockReturnValue({
+      generateContent: mockGenerateContent,
+    }),
   })),
 }));
 
-// Mock fetch for photo download (Anthropic API requires base64, not URLs)
 global.fetch = jest.fn().mockResolvedValue({
   arrayBuffer: () => Promise.resolve(Buffer.from('fake-image')),
   headers: { get: () => 'image/jpeg' },
@@ -25,7 +25,7 @@ global.fetch = jest.fn().mockResolvedValue({
 
 describe('generateAdVariants', () => {
   beforeEach(() => {
-    mockCreate.mockClear();
+    mockGenerateContent.mockClear();
   });
 
   it('returns 3 variants with label, copy, platform', async () => {
@@ -46,10 +46,10 @@ describe('generateAdVariants', () => {
     expect(variants[2].platform).toBe('google_business');
   });
 
-  it('retries once with stricter prompt if Claude returns malformed JSON', async () => {
-    mockCreate
-      .mockResolvedValueOnce({ content: [{ type: 'text', text: 'not json' }] })
-      .mockResolvedValueOnce({ content: [{ type: 'text', text: JSON.stringify(mockVariants) }] });
+  it('retries once with stricter prompt if Gemini returns malformed JSON', async () => {
+    mockGenerateContent
+      .mockResolvedValueOnce({ response: { text: () => 'not json' } })
+      .mockResolvedValueOnce({ response: { text: () => JSON.stringify(mockVariants) } });
 
     const variants = await generateAdVariants({
       photoUrl: 'https://example.com/photo.jpg',
@@ -58,7 +58,7 @@ describe('generateAdVariants', () => {
       tone: 'professional',
     });
 
-    expect(mockCreate).toHaveBeenCalledTimes(2);
+    expect(mockGenerateContent).toHaveBeenCalledTimes(2);
     expect(variants).toHaveLength(3);
   });
 });
