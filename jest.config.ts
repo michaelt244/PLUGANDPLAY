@@ -5,6 +5,7 @@ const config: Config = {
   testEnvironment: 'node',
   moduleNameMapper: { '^@/(.*)$': '<rootDir>/$1' },
   testMatch: ['**/__tests__/**/*.ts?(x)', '**/?(*.)+(spec|test).ts?(x)'],
+  setupFiles: ['<rootDir>/jest.setup.ts'],
 };
 
 export default config;
