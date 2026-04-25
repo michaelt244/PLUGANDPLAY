@@ -1,4 +1,5 @@
 import { File } from 'buffer';
 if (!global.File) {
-  (global as typeof globalThis & { File: typeof File }).File = File;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (global as any).File = File;
 }
