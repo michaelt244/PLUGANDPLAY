@@ -48,8 +48,10 @@ async function callGemini(
   ]);
 
   const text = result.response.text().trim();
-  const json = text.startsWith('[') ? text : text.slice(text.indexOf('['));
-  return JSON.parse(json) as AdVariant[];
+  const start = text.indexOf('[');
+  const end = text.lastIndexOf(']');
+  if (start === -1 || end === -1) throw new Error('No JSON array in Gemini response');
+  return JSON.parse(text.slice(start, end + 1)) as AdVariant[];
 }
 
 export async function generateAdVariants(params: {
