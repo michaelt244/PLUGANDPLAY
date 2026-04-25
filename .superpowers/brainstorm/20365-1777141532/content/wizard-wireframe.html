@@ -1,0 +1,105 @@
+<h2>Marketing Wizard — Flow Design</h2>
+<p class="subtitle">4-step linear flow for the demo</p>
+
+<div class="section">
+  <!-- Progress Bar -->
+  <div style="display:flex;gap:0;margin-bottom:32px;border-radius:8px;overflow:hidden;border:1px solid #ddd;">
+    <div style="flex:1;padding:12px 16px;background:#6366f1;color:white;font-weight:600;font-size:13px;text-align:center;">1 · Upload</div>
+    <div style="flex:1;padding:12px 16px;background:#e5e7eb;color:#888;font-size:13px;text-align:center;">2 · Generate</div>
+    <div style="flex:1;padding:12px 16px;background:#e5e7eb;color:#888;font-size:13px;text-align:center;">3 · Pick + Target</div>
+    <div style="flex:1;padding:12px 16px;background:#e5e7eb;color:#888;font-size:13px;text-align:center;">4 · Dispatch</div>
+  </div>
+
+  <!-- Step 1 mockup -->
+  <div class="mockup">
+    <div class="mockup-header">Step 1 — Upload Photo + Business Context</div>
+    <div class="mockup-body" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <div>
+        <div style="border:2px dashed #d1d5db;border-radius:8px;padding:40px;text-align:center;color:#9ca3af;background:#f9fafb;">
+          📷 Drop photo here<br><small>or click to upload</small>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <input class="mock-input" placeholder="Business name (e.g. Wild & The Barre)" style="width:100%">
+        <input class="mock-input" placeholder="What's this ad for? (e.g. summer class promo)" style="width:100%">
+        <select class="mock-input" style="width:100%">
+          <option>Tone: Energetic & Fun</option>
+          <option>Tone: Professional</option>
+          <option>Tone: Warm & Local</option>
+        </select>
+        <button class="mock-button" style="background:#6366f1;color:white;border:none;padding:12px;border-radius:6px;font-weight:600;cursor:pointer;">✨ Generate Ads →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <!-- Step 2 mockup -->
+  <div class="mockup">
+    <div class="mockup-header">Step 2 — Claude Vision Generates 3 Variants</div>
+    <div class="mockup-body">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+        <div style="border:2px solid #6366f1;border-radius:8px;padding:16px;background:#fafafa;">
+          <div class="label" style="color:#6366f1;">Variant A · Energetic</div>
+          <p style="font-size:13px;margin:8px 0;">"Level up your mornings! 💪 Join Wild & The Barre this summer — first class free. Link in bio."</p>
+          <div style="font-size:11px;color:#888;">Instagram caption · 140 chars</div>
+        </div>
+        <div style="border:1px solid #e5e7eb;border-radius:8px;padding:16px;background:#fafafa;">
+          <div class="label">Variant B · Community</div>
+          <p style="font-size:13px;margin:8px 0;">"Hey Redwood City! We're running a summer special at Wild & The Barre — barre classes for all levels. Come try us out!"</p>
+          <div style="font-size:11px;color:#888;">Facebook post · 180 chars</div>
+        </div>
+        <div style="border:1px solid #e5e7eb;border-radius:8px;padding:16px;background:#fafafa;">
+          <div class="label">Variant C · Offer-Led</div>
+          <p style="font-size:13px;margin:8px 0;">"Summer Barre Special: 20% off your first month. Flexible classes, welcoming community. Book now."</p>
+          <div style="font-size:11px;color:#888;">Google Business · 120 chars</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <!-- Step 3 mockup -->
+  <div class="mockup">
+    <div class="mockup-header">Step 3 — Pick Variant + Select Platforms</div>
+    <div class="mockup-body" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <div>
+        <div class="label">Selected variant</div>
+        <div style="border:2px solid #6366f1;border-radius:8px;padding:14px;margin-top:8px;font-size:13px;">"Level up your mornings! 💪 Join Wild & The Barre this summer — first class free."</div>
+      </div>
+      <div>
+        <div class="label">Post to</div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
+          <label style="display:flex;align-items:center;gap:10px;font-size:14px;"><input type="checkbox" checked> <span>📘 Facebook</span></label>
+          <label style="display:flex;align-items:center;gap:10px;font-size:14px;"><input type="checkbox" checked> <span>📸 Instagram</span></label>
+          <label style="display:flex;align-items:center;gap:10px;font-size:14px;"><input type="checkbox" checked> <span>🔍 Google Business</span></label>
+        </div>
+        <button class="mock-button" style="margin-top:16px;background:#6366f1;color:white;border:none;padding:12px 24px;border-radius:6px;font-weight:600;width:100%;">🚀 Dispatch via Manus →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <!-- Step 4 mockup -->
+  <div class="mockup">
+    <div class="mockup-header">Step 4 — Manus Dispatching (Live Status)</div>
+    <div class="mockup-body">
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#f0fdf4;border-radius:8px;border:1px solid #bbf7d0;">
+          <span style="font-size:18px;">✅</span>
+          <div><strong>Facebook</strong> — Posted successfully<br><small style="color:#888;">Wild & The Barre · 2s ago</small></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#f0fdf4;border-radius:8px;border:1px solid #bbf7d0;">
+          <span style="font-size:18px;">✅</span>
+          <div><strong>Instagram</strong> — Posted successfully<br><small style="color:#888;">Wild & The Barre · 3s ago</small></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#fefce8;border-radius:8px;border:1px solid #fde68a;">
+          <span style="font-size:18px;">⏳</span>
+          <div><strong>Google Business</strong> — Posting...<br><small style="color:#888;">Usually takes 5–10s</small></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

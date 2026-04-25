@@ -1,0 +1,60 @@
+<h2>LocalBoost Marketing — Final Design</h2>
+<p class="subtitle">Confirm this before we write the spec</p>
+
+<div class="section">
+  <h3>4-Step Wizard Flow</h3>
+  <div style="display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid #ddd;margin-top:12px;">
+    <div style="flex:1;padding:14px;background:#6366f1;color:white;text-align:center;font-size:13px;"><strong>1</strong><br>Upload Photo<br>+ Context</div>
+    <div style="flex:1;padding:14px;background:#818cf8;color:white;text-align:center;font-size:13px;"><strong>2</strong><br>Claude Vision<br>→ 3 Ad Variants</div>
+    <div style="flex:1;padding:14px;background:#a5b4fc;color:white;text-align:center;font-size:13px;"><strong>3</strong><br>Pick Variant<br>+ Platforms</div>
+    <div style="flex:1;padding:14px;background:#c7d2fe;color:#4338ca;text-align:center;font-size:13px;"><strong>4</strong><br>Manus Dispatches<br>Live Status</div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>API Routes</h3>
+  <div style="display:flex;flex-direction:column;gap:8px;font-family:monospace;font-size:13px;">
+    <div style="padding:10px 14px;background:#f1f5f9;border-radius:6px;border-left:3px solid #6366f1;"><span style="color:#6366f1;">POST</span> /api/generate-ad — multipart photo + business context → Claude Vision → 3 variants</div>
+    <div style="padding:10px 14px;background:#f1f5f9;border-radius:6px;border-left:3px solid #10b981;"><span style="color:#10b981;">POST</span> /api/dispatch — variant + platforms → Manus → real posts to FB / IG / Google Business</div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Tech Stack</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:13px;">
+    <div style="padding:12px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
+      <div class="label">Frontend</div>
+      <p style="margin:6px 0 0;">Next.js 14 App Router · Tailwind CSS · shadcn/ui</p>
+    </div>
+    <div style="padding:12px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
+      <div class="label">AI</div>
+      <p style="margin:6px 0 0;">Claude Vision (Anthropic SDK) for ad copy generation</p>
+    </div>
+    <div style="padding:12px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
+      <div class="label">Dispatch</div>
+      <p style="margin:6px 0 0;">Manus for automated posting to FB, IG, Google Business</p>
+    </div>
+    <div style="padding:12px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
+      <div class="label">Database</div>
+      <p style="margin:6px 0 0;">Supabase — campaigns table stores ad variants + dispatch results</p>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Supabase Schema</h3>
+  <div style="font-family:monospace;font-size:12px;background:#1e1e2e;color:#cdd6f4;padding:16px;border-radius:8px;line-height:1.7;">
+    campaigns (<br>
+    &nbsp;&nbsp;id uuid,<br>
+    &nbsp;&nbsp;business_name text,<br>
+    &nbsp;&nbsp;ad_goal text,<br>
+    &nbsp;&nbsp;tone text,<br>
+    &nbsp;&nbsp;photo_url text,<br>
+    &nbsp;&nbsp;variants jsonb,&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086;">-- [{label, copy, platform}]</span><br>
+    &nbsp;&nbsp;selected_variant int,<br>
+    &nbsp;&nbsp;platforms text[],&nbsp;&nbsp;&nbsp;<span style="color:#6c7086;">-- ['facebook','instagram','google']</span><br>
+    &nbsp;&nbsp;dispatch_status jsonb,&nbsp;<span style="color:#6c7086;">-- {facebook: 'posted', ...}</span><br>
+    &nbsp;&nbsp;created_at timestamptz<br>
+    )
+  </div>
+</div>
