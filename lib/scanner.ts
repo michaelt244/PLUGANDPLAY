@@ -22,20 +22,22 @@ function buildPrompt(params: {
   businessName: string;
   adGoal: string;
   tone: string;
+  location?: string;
   strict?: boolean;
 }): string {
   const strictNote = params.strict
     ? ' IMPORTANT: Return ONLY a JSON array, nothing else.'
     : '';
-  return `Business: ${params.businessName}
+  const locationLine = params.location ? `\nLocation: ${params.location}` : '';
+  return `Business: ${params.businessName}${locationLine}
 Goal: ${params.adGoal}
 Tone: ${params.tone}
-Find the top 8-10 online communities (Facebook groups, subreddits, Nextdoor) where this business should advertise.${strictNote}`;
+Find the top 8-10 online communities (Facebook groups, subreddits, Nextdoor) where this business should advertise. Prioritize location-specific groups if a location is provided.${strictNote}`;
 }
 
 async function callGemini(
   model: ReturnType<GoogleGenerativeAI['getGenerativeModel']>,
-  params: { businessName: string; adGoal: string; tone: string },
+  params: { businessName: string; adGoal: string; tone: string; location?: string },
   strict = false
 ): Promise<GroupTarget[]> {
   const result = await model.generateContent([
@@ -52,6 +54,7 @@ export async function discoverGroups(params: {
   businessName: string;
   adGoal: string;
   tone: string;
+  location?: string;
 }): Promise<GroupTarget[]> {
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
   const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });

@@ -9,6 +9,7 @@ export async function POST(request: NextRequest) {
   const businessName = formData.get('business_name') as string;
   const adGoal = formData.get('ad_goal') as string;
   const tone = formData.get('tone') as 'energetic' | 'professional' | 'warm';
+  const location = (formData.get('location') as string) || undefined;
 
   if (!photo) {
     return NextResponse.json({ error: 'photo is required' }, { status: 400 });
@@ -16,7 +17,7 @@ export async function POST(request: NextRequest) {
 
   const { data: campaign, error: insertError } = await supabase
     .from('campaigns')
-    .insert({ business_name: businessName, ad_goal: adGoal, tone })
+    .insert({ business_name: businessName, ad_goal: adGoal, tone, location })
     .select('id')
     .single();
 
@@ -31,7 +32,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Photo upload failed' }, { status: 400 });
   }
 
-  const variants = await generateAdVariants({ photoUrl, businessName, adGoal, tone });
+  const variants = await generateAdVariants({ photoUrl, businessName, adGoal, tone, location });
 
   await supabase
     .from('campaigns')

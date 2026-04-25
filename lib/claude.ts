@@ -16,12 +16,14 @@ function buildUserPrompt(params: {
   businessName: string;
   adGoal: string;
   tone: string;
+  location?: string;
   strict?: boolean;
 }): string {
   const strictNote = params.strict
     ? ' IMPORTANT: Return ONLY a JSON array, nothing else.'
     : '';
-  return `Business: ${params.businessName}
+  const locationLine = params.location ? `\nLocation: ${params.location}` : '';
+  return `Business: ${params.businessName}${locationLine}
 Goal: ${params.adGoal}
 Tone: ${params.tone}
 Write 3 ad variants for this photo.${strictNote}`;
@@ -30,7 +32,7 @@ Write 3 ad variants for this photo.${strictNote}`;
 async function callGemini(
   model: ReturnType<GoogleGenerativeAI['getGenerativeModel']>,
   photoUrl: string,
-  params: { businessName: string; adGoal: string; tone: string },
+  params: { businessName: string; adGoal: string; tone: string; location?: string },
   strict = false
 ): Promise<AdVariant[]> {
   const imageResp = await fetch(photoUrl);
@@ -59,6 +61,7 @@ export async function generateAdVariants(params: {
   businessName: string;
   adGoal: string;
   tone: 'energetic' | 'professional' | 'warm';
+  location?: string;
 }): Promise<AdVariant[]> {
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
   const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });

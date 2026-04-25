@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
 
   const { data: campaign, error } = await supabase
     .from('campaigns')
-    .select('business_name, ad_goal, tone')
+    .select('business_name, ad_goal, tone, location')
     .eq('id', campaign_id)
     .single();
 
@@ -19,6 +19,7 @@ export async function POST(request: NextRequest) {
     businessName: campaign.business_name,
     adGoal: campaign.ad_goal ?? '',
     tone: campaign.tone ?? '',
+    location: campaign.location ?? undefined,
   });
 
   await supabase
