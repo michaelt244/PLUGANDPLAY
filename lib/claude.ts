@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import Anthropic from '@anthropic-ai/sdk';
 import type { AdVariant } from './supabase';
 
 const SYSTEM_PROMPT = `You are an expert social media copywriter for small local businesses.
@@ -27,24 +27,50 @@ Tone: ${params.tone}
 Write 3 ad variants for this photo.${strictNote}`;
 }
 
-async function callGemini(
-  model: ReturnType<GoogleGenerativeAI['getGenerativeModel']>,
+async function callClaude(
   photoUrl: string,
   params: { businessName: string; adGoal: string; tone: string },
   strict = false
 ): Promise<AdVariant[]> {
+  const client = new Anthropic();
+
+  // Anthropic API requires base64-encoded images, not URLs
   const imageResp = await fetch(photoUrl);
   const imageBuffer = await imageResp.arrayBuffer();
   const base64 = Buffer.from(imageBuffer).toString('base64');
-  const mimeType = (imageResp.headers.get('content-type') ?? 'image/jpeg') as 'image/jpeg' | 'image/png' | 'image/webp';
+  const mimeType = (imageResp.headers.get('content-type') ?? 'image/jpeg') as
+    | 'image/jpeg'
+    | 'image/png'
+    | 'image/gif'
+    | 'image/webp';
 
-  const result = await model.generateContent([
-    { text: SYSTEM_PROMPT },
-    { inlineData: { mimeType, data: base64 } },
-    { text: buildUserPrompt({ ...params, strict }) },
-  ]);
+  const response = await client.messages.create({
+    model: 'claude-sonnet-4-6',
+    max_tokens: 1024,
+    system: SYSTEM_PROMPT,
+    messages: [
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'image',
+            source: { type: 'base64', media_type: mimeType, data: base64 },
+          },
+          {
+            type: 'text',
+            text: buildUserPrompt({ ...params, strict }),
+          },
+        ],
+      },
+    ],
+  });
 
-  const text = result.response.text().trim();
+  const textBlock = response.content.find((b) => b.type === 'text');
+  if (!textBlock || textBlock.type !== 'text') {
+    throw new Error('Claude returned no text block');
+  }
+
+  const text = textBlock.text.trim();
   const json = text.startsWith('[') ? text : text.slice(text.indexOf('['));
   return JSON.parse(json) as AdVariant[];
 }
@@ -55,12 +81,10 @@ export async function generateAdVariants(params: {
   adGoal: string;
   tone: 'energetic' | 'professional' | 'warm';
 }): Promise<AdVariant[]> {
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
   const { photoUrl, ...context } = params;
   try {
-    return await callGemini(model, photoUrl, context);
+    return await callClaude(photoUrl, context);
   } catch {
-    return await callGemini(model, photoUrl, context, true);
+    return await callClaude(photoUrl, context, true);
   }
 }
