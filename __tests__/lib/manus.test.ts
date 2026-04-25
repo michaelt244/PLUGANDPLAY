@@ -6,13 +6,12 @@ describe('dispatchToManus', () => {
   beforeEach(() => {
     jest.resetAllMocks();
     process.env.MANUS_API_KEY = 'test-key';
-    process.env.MANUS_API_URL = 'https://api.manus.im';
   });
 
   it('posts to facebook and returns posted status', async () => {
     (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ status: 'posted' }),
+      json: async () => ({ ok: true, task_id: 'task-123' }),
     });
 
     const result = await dispatchToManus({
@@ -23,17 +22,17 @@ describe('dispatchToManus', () => {
 
     expect(result).toBe('posted');
     expect(global.fetch).toHaveBeenCalledWith(
-      'https://api.manus.im/post',
+      'https://api.manus.ai/v2/task.create',
       expect.objectContaining({
         method: 'POST',
         headers: expect.objectContaining({
-          Authorization: 'Bearer test-key',
+          'x-manus-api-key': 'test-key',
         }),
       })
     );
   });
 
-  it('returns failed if Manus API returns non-ok', async () => {
+  it('returns failed if Manus API returns non-ok HTTP status', async () => {
     (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: false,
       json: async () => ({ error: 'unauthorized' }),
