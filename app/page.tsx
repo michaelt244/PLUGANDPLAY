@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import SignupForm from '@/components/SignupForm';
+import CreateAdWizard from '@/components/CreateAdWizard';
 
 // ─── Images ──────────────────────────────────────────────────────────────────
 
@@ -206,7 +207,7 @@ const SAMPLE_MESSAGES = [
 ];
 
 export default function Home() {
-  const [tab, setTab] = useState<'signup' | 'marketing' | 'platform' | 'messages' | 'analytics'>('signup');
+  const [tab, setTab] = useState<'signup' | 'marketing' | 'platform' | 'messages' | 'analytics' | 'create-ad'>('signup');
   const [signedUp, setSignedUp] = useState(false);
   const [businessInfo, setBusinessInfo] = useState({ businessName: '', businessDescription: '', problems: '', location: '' });
 
@@ -216,6 +217,7 @@ export default function Home() {
     { key: 'platform' as const, label: 'Platform' },
     { key: 'messages' as const, label: 'Messages' },
     { key: 'analytics' as const, label: 'Analytics' },
+    { key: 'create-ad' as const, label: 'Create Ad' },
   ];
 
   return (
@@ -707,6 +709,13 @@ export default function Home() {
                 ))}
               </div>
             </div>
+          </div>
+        )}
+
+        {/* ─── Create Ad ─── */}
+        {tab === 'create-ad' && (
+          <div className="max-w-lg mx-auto">
+            <CreateAdWizard />
           </div>
         )}
       </div>
