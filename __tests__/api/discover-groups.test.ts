@@ -23,7 +23,7 @@ jest.mock('@/lib/supabase', () => ({
 }));
 
 const mockGroups = [
-  { group: 'Redwood City Moms', platform: 'facebook', reason: 'local parents' },
+  { group: 'Redwood City Moms', platform: 'facebook' as const, reason: 'local parents' },
 ];
 
 const { supabase: mockSupabase } = jest.requireMock('@/lib/supabase');
