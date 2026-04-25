@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { sendRewardEmail } from '@/lib/resend';
 
 export async function POST(req: NextRequest) {
   try {
@@ -9,10 +10,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'customer_id is required' }, { status: 400 });
     }
 
-    // Verify customer exists
     const { data: customer, error: custErr } = await supabase
       .from('customers')
-      .select('id, total_check_ins')
+      .select('id, total_check_ins, email, first_name')
       .eq('id', customer_id)
       .single();
 
@@ -20,14 +20,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Customer not found' }, { status: 404 });
     }
 
-    // Record the check-in
     const { error: checkInErr } = await supabase
       .from('check_ins')
       .insert({ customer_id, class_type: class_type || null });
 
     if (checkInErr) throw checkInErr;
 
-    // Increment total_check_ins
     const newTotal = customer.total_check_ins + 1;
 
     const { error: updateErr } = await supabase
@@ -37,7 +35,6 @@ export async function POST(req: NextRequest) {
 
     if (updateErr) throw updateErr;
 
-    // Check for newly earned milestones
     const { data: milestones } = await supabase
       .from('rewards_milestones')
       .select('*')
@@ -45,7 +42,6 @@ export async function POST(req: NextRequest) {
       .lte('check_in_threshold', newTotal)
       .order('check_in_threshold', { ascending: true });
 
-    // Get already-earned milestone IDs
     const { data: alreadyEarned } = await supabase
       .from('rewards_earned')
       .select('milestone_id')
@@ -63,12 +59,12 @@ export async function POST(req: NextRequest) {
 
           if (!rewardErr) {
             newRewards.push({ milestone_id: m.id, reward_name: m.reward_name });
+            sendRewardEmail(customer.email, customer.first_name, m.reward_name).catch(console.error);
           }
         }
       }
     }
 
-    // Update segment based on total check-ins
     let segment = 'new';
     if (newTotal >= 50) segment = 'vip';
     else if (newTotal >= 20) segment = 'loyal';
