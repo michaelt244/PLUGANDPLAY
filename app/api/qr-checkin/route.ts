@@ -50,9 +50,11 @@ export async function POST(req: NextRequest) {
     customer_id = created.id;
     is_new = true;
 
-    await supabase
+    const { error: segErr } = await supabase
       .from('customer_segments')
       .insert({ customer_id, business_id, segment: 'new' });
+
+    if (segErr) console.error('customer_segments insert failed:', segErr);
 
     sendWelcomeEmail(email, first_name).catch(console.error);
   }

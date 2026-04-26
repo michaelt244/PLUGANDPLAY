@@ -86,5 +86,6 @@ describe('POST /api/qr-checkin', () => {
     const body = await res.json();
     expect(body.customer_id).toBe(CUSTOMER_ID);
     expect(body.is_new).toBe(true);
+    expect(body.total_check_ins).toBe(1);
   });
 });
