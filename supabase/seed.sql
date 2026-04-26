@@ -6,12 +6,12 @@ on conflict (slug) do nothing;
 
 insert into qr_codes (business_id, label)
 select id, 'Front Door' from businesses where slug = 'wild-barre'
-on conflict do nothing;
+on conflict on constraint qr_codes_business_label_key do nothing;
 
 insert into qr_codes (business_id, label)
 select id, 'Front Door' from businesses where slug = 'blue-bottle'
-on conflict do nothing;
+on conflict on constraint qr_codes_business_label_key do nothing;
 
 insert into qr_codes (business_id, label)
 select id, 'Front Door' from businesses where slug = 'casa-azteca'
-on conflict do nothing;
+on conflict on constraint qr_codes_business_label_key do nothing;
