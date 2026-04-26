@@ -18,6 +18,7 @@ export function createBrowserClient() {
 
 export type Customer = {
   id: string;
+  business_id: string;
   first_name: string;
   last_name: string;
   email: string;
@@ -31,6 +32,7 @@ export type Customer = {
 export type CheckIn = {
   id: string;
   customer_id: string;
+  business_id: string;
   checked_in_at: string;
   class_type: string | null;
 };
@@ -49,6 +51,21 @@ export type RewardEarned = {
   milestone_id: string;
   earned_at: string;
   redeemed_at: string | null;
+};
+
+export type Business = {
+  id: string;
+  name: string;
+  slug: string;
+  owner_email: string;
+  created_at: string;
+};
+
+export type QrCode = {
+  id: string;
+  business_id: string;
+  label: string;
+  created_at: string;
 };
 
 // ----- Legacy re-exports (campaigns) -----
