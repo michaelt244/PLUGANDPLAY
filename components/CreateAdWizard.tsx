@@ -38,18 +38,28 @@ function Spinner() {
   );
 }
 
-export default function CreateAdWizard() {
+export default function CreateAdWizard({
+  defaultBusinessName = '',
+  defaultLocation = '',
+}: {
+  defaultBusinessName?: string;
+  defaultLocation?: string;
+}) {
   const [step, setStep] = useState<Step>(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
-  const [businessName, setBusinessName] = useState('');
-  const [location, setLocation] = useState('');
+  const [businessName, setBusinessName] = useState(defaultBusinessName);
+  const [location, setLocation] = useState(defaultLocation);
   const [adGoal, setAdGoal] = useState('');
   const [tone, setTone] = useState<'energetic' | 'professional' | 'warm'>('energetic');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [imageSource, setImageSource] = useState<'upload' | 'generate'>('upload');
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
+  const [generatingImage, setGeneratingImage] = useState(false);
 
   const [campaignId, setCampaignId] = useState('');
   const [variants, setVariants] = useState<AdVariant[]>([]);
@@ -72,6 +82,30 @@ export default function CreateAdWizard() {
     setPhotoPreview(URL.createObjectURL(file));
   }
 
+  async function handleGenerateImage() {
+    if (!businessName || !adGoal) {
+      setError('Fill in business name and ad goal before generating an image.');
+      return;
+    }
+    setError('');
+    setGeneratingImage(true);
+    try {
+      const res = await fetch('/api/generate-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ businessName, adGoal, tone }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error ?? 'Generation failed');
+      const { imageUrl } = await res.json();
+      setGeneratedImageUrl(imageUrl);
+      setPhotoPreview(imageUrl);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Image generation failed');
+    } finally {
+      setGeneratingImage(false);
+    }
+  }
+
   function togglePlatform(p: Platform) {
     setPlatforms(prev =>
       prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]
@@ -89,21 +123,33 @@ export default function CreateAdWizard() {
   function reset() {
     setStep(1); setLoading(false); setError('');
     setPhoto(null); setPhotoPreview(null);
-    setBusinessName(''); setLocation(''); setAdGoal(''); setTone('energetic');
+    setBusinessName(defaultBusinessName); setLocation(defaultLocation); setAdGoal(''); setTone('energetic');
     setCampaignId(''); setVariants([]); setSelectedVariant(null);
     setPlatforms(['instagram']); setDispatchResults({});
     setGroups([]); setApprovedGroups([]); setGroupResults({});
+    setImageSource('upload');
+    setGeneratedImageUrl(null);
+    setGeneratingImage(false);
   }
 
   async function handleGenerate() {
-    if (!photo || !businessName || !adGoal) {
-      setError('Please fill in all fields and upload a photo.');
+    const hasImage = imageSource === 'upload' ? !!photo : !!generatedImageUrl;
+    if (!hasImage || !businessName || !adGoal) {
+      setError(
+        imageSource === 'upload'
+          ? 'Please fill in all fields and upload a photo.'
+          : 'Please fill in all fields and generate an image.'
+      );
       return;
     }
     setError(''); setLoading(true);
     try {
       const formData = new FormData();
-      formData.append('photo', photo);
+      if (imageSource === 'upload' && photo) {
+        formData.append('photo', photo);
+      } else if (generatedImageUrl) {
+        formData.append('generated_image_url', generatedImageUrl);
+      }
       formData.append('business_name', businessName);
       formData.append('ad_goal', adGoal);
       formData.append('tone', tone);
@@ -190,22 +236,79 @@ export default function CreateAdWizard() {
           <div className="space-y-4">
             <h2 className="text-lg font-bold text-gray-900">Create Your Ad</h2>
             <p className="text-sm text-gray-400">Upload a photo and tell us about your business.</p>
-            <div
-              onClick={() => fileInputRef.current?.click()}
-              className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${photo ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}
-            >
-              {photoPreview ? (
-                <img src={photoPreview} alt="Preview" className="max-h-40 mx-auto rounded-lg object-cover" />
-              ) : (
-                <>
-                  <svg className="w-8 h-8 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <p className="text-sm text-gray-400">Click to upload photo</p>
-                </>
-              )}
-              <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
+            {/* Image source toggle */}
+            <div className="flex rounded-xl overflow-hidden border border-gray-200">
+              <button
+                type="button"
+                onClick={() => { setImageSource('upload'); setGeneratedImageUrl(null); setPhotoPreview(null); setPhoto(null); }}
+                className={`flex-1 py-2.5 text-sm font-semibold transition-colors ${imageSource === 'upload' ? 'bg-gray-900 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
+              >
+                Upload Photo
+              </button>
+              <button
+                type="button"
+                onClick={() => { setImageSource('generate'); setPhoto(null); setPhotoPreview(null); }}
+                className={`flex-1 py-2.5 text-sm font-semibold transition-colors ${imageSource === 'generate' ? 'bg-gray-900 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
+              >
+                Generate with AI
+              </button>
             </div>
+
+            {imageSource === 'upload' ? (
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${photo ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}
+              >
+                {photoPreview ? (
+                  <img src={photoPreview} alt="Preview" className="max-h-40 mx-auto rounded-lg object-cover" />
+                ) : (
+                  <>
+                    <svg className="w-8 h-8 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <p className="text-sm text-gray-400">Click to upload photo</p>
+                  </>
+                )}
+                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {photoPreview ? (
+                  <div className="relative">
+                    <img src={photoPreview} alt="Generated" className="w-full max-h-48 object-cover rounded-xl" />
+                    <button
+                      type="button"
+                      onClick={() => { setGeneratedImageUrl(null); setPhotoPreview(null); }}
+                      className="absolute top-2 right-2 bg-white text-gray-600 rounded-full w-6 h-6 text-xs font-bold shadow hover:bg-gray-100"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleGenerateImage}
+                    disabled={generatingImage || !businessName || !adGoal}
+                    className="w-full border-2 border-dashed border-gray-200 rounded-xl p-6 text-center hover:border-blue-300 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    {generatingImage ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="animate-spin border-2 border-gray-200 border-t-blue-600 rounded-full w-5 h-5" />
+                        <span className="text-sm text-gray-400">Generating with Imagen 3…</span>
+                      </div>
+                    ) : (
+                      <>
+                        <svg className="w-8 h-8 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                        </svg>
+                        <p className="text-sm text-gray-400">Click to generate an image with AI</p>
+                        <p className="text-xs text-gray-300 mt-1">Fill in business name and goal first</p>
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+            )}
             <div>
               <label className="block text-xs font-semibold text-gray-900 mb-1.5">Business Name</label>
               <input type="text" value={businessName} onChange={e => setBusinessName(e.target.value)} placeholder="Wild & The Barre" className={inputClass} />
