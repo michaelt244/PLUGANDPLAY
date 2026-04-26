@@ -19,6 +19,8 @@
 # misc
 .DS_Store
 *.pem
+.claude/
+.superpowers/
 
 # debug
 npm-debug.log*
@@ -31,6 +33,10 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# local tooling
+.mcp.json
+skills-lock.json
 
 # typescript
 *.tsbuildinfo

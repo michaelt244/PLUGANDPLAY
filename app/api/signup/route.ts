@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { sendWelcomeEmail } from '@/lib/resend';
 
 export async function POST(req: NextRequest) {
   try {
@@ -55,6 +56,9 @@ export async function POST(req: NextRequest) {
         if (prefError) throw prefError;
       }
     }
+
+    const businessName = preferences?.business_name as string | undefined;
+    sendWelcomeEmail(email, first_name, businessName ?? undefined).catch(() => {});
 
     return NextResponse.json({ customer }, { status: 201 });
   } catch (err: unknown) {

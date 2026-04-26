@@ -9,8 +9,8 @@ const geistSans = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Kinetiq — Intelligent Rewards & Retention",
-  description: "AI-powered rewards and retention platform for fitness studios",
+  title: "Kinetiq — AI Marketing & Retention for Small Businesses",
+  description: "AI-powered ads, community targeting, and customer retention for local businesses.",
 };
 
 export default function RootLayout({

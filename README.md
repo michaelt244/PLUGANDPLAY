@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Kinetiq
 
-## Getting Started
+Kinetiq is a Next.js marketing and retention app for local businesses. It combines QR-based customer check-ins, multi-tenant business analytics, AI-assisted ad creation, and transactional email workflows in one product demo.
 
-First, run the development server:
+## Stack
+
+- Next.js 14 + React 18 + TypeScript
+- Tailwind CSS
+- Supabase Postgres + Storage
+- Anthropic Claude for ad copy generation
+- Google Imagen for AI image generation
+- Resend for transactional email
+- Jest for API and library tests
+
+## Core Features
+
+- Multi-tenant business data model with `business_id` scoping
+- QR check-in flow at `/checkin/[slug]`
+- Customer creation and business-specific check-in logging
+- AI image generation for ads
+- Ad variant generation and dispatch flows
+- Analytics dashboard with per-business filtering
+
+## Local Development
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Configure environment variables in `.env`.
+
+Required values include:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `GEMINI_API_KEY`
+- `ANTHROPIC_API_KEY`
+- `RESEND_API_KEY`
+
+3. Start the app:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Run tests:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm test
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+5. Run a production build check:
 
-## Learn More
+```bash
+npm run build
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Project Structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `app/` application routes and API handlers
+- `components/` client UI components
+- `lib/` shared integrations and service helpers
+- `supabase/migrations/` database schema changes
+- `__tests__/` Jest coverage for core logic and API routes

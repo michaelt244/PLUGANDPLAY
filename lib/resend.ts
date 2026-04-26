@@ -1,9 +1,18 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY!);
 const FROM = 'onboarding@resend.dev';
 
+function getResendClient(): Resend {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error('Missing RESEND_API_KEY');
+  }
+
+  return new Resend(apiKey);
+}
+
 async function send(to: string, subject: string, html: string): Promise<void> {
+  const resend = getResendClient();
   await resend.emails.send({ from: FROM, to, subject, html });
 }
 

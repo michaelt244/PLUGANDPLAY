@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import SignupForm from '@/components/SignupForm';
 import CreateAdWizard from '@/components/CreateAdWizard';
+import AnalyticsDashboard from '@/components/AnalyticsDashboard';
 
 // ─── Images ──────────────────────────────────────────────────────────────────
 
@@ -81,7 +82,7 @@ function EmailTemplate() {
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <span className="text-[10px] text-gray-400 w-10">From:</span>
-                <span className="text-[10px] text-gray-700 font-medium">Wild & The Barre via Kinetiq &lt;rewards@kinetiq.com&gt;</span>
+                <span className="text-[10px] text-gray-700 font-medium">Wild & The Barre via Kinetiq &lt;rewards@kinetiq.co&gt;</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-[10px] text-gray-400 w-10">To:</span>
@@ -269,14 +270,13 @@ export default function Home() {
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-5xl mx-auto px-6 py-8 grid grid-cols-2 md:grid-cols-4 gap-6">
           {[
-            { value: '340%', label: 'Average campaign ROI' },
-            { value: '$45', label: 'Revenue per birthday campaign' },
-            { value: '3x', label: 'Higher engagement with targeting' },
-            { value: '15%', label: 'Retention lift with churn alerts' },
-          ].map((stat) => (
-            <div key={stat.label}>
-              <p className="text-3xl md:text-4xl font-bold text-gray-900">{stat.value}</p>
-              <p className="text-xs text-gray-400 mt-1">{stat.label}</p>
+            'Average campaign ROI',
+            'Revenue per birthday campaign',
+            'Higher engagement with targeting',
+            'Retention lift with churn alerts',
+          ].map((label) => (
+            <div key={label}>
+              <p className="text-sm font-semibold text-gray-700">{label}</p>
             </div>
           ))}
         </div>
@@ -289,7 +289,13 @@ export default function Home() {
           {tabs.map((t) => (
             <button
               key={t.key}
-              onClick={() => setTab(t.key)}
+              onClick={() => {
+                if (t.key === 'create-ad' && !signedUp) {
+                  setTab('signup');
+                } else {
+                  setTab(t.key);
+                }
+              }}
               className={`flex-1 py-2.5 text-[11px] font-bold rounded-xl transition-all ${
                 tab === t.key ? 'bg-gray-900 text-white shadow-md' : 'text-gray-400 hover:text-gray-600'
               }`}
@@ -356,28 +362,21 @@ export default function Home() {
                     step: '01',
                     title: 'You Describe Your Business',
                     desc: 'Tell us what you do, who you serve, and where you\'re located. That\'s all we need.',
-                    image: IMAGES.team,
                   },
                   {
                     step: '02',
                     title: 'We Scrape & Analyze',
                     desc: 'Kinetiq scans public online signals — social communities, discussion groups, stories, and interest-based spaces where your ideal customers already engage.',
-                    image: IMAGES.social,
                   },
                   {
                     step: '03',
                     title: 'We Target & Convert',
                     desc: 'We market to those audiences because the algorithm already favors them for matching interests. Higher relevance, lower cost, better results.',
-                    image: IMAGES.targeting,
                   },
                 ].map((s) => (
-                  <div key={s.step} className="text-center">
-                    <div className="relative w-full h-40 rounded-xl overflow-hidden mb-4">
-                      <Image src={s.image} alt={s.title} fill className="object-cover" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-gray-900/60 to-transparent" />
-                      <div className="absolute top-3 left-3 bg-blue-600 text-white text-xs font-bold w-7 h-7 rounded-full flex items-center justify-center">
-                        {s.step}
-                      </div>
+                  <div key={s.step} className="bg-gray-50 rounded-2xl p-6">
+                    <div className="bg-blue-600 text-white text-xs font-bold w-7 h-7 rounded-full flex items-center justify-center mb-3">
+                      {s.step}
                     </div>
                     <h4 className="text-sm font-bold text-gray-900 mb-1">{s.title}</h4>
                     <p className="text-xs text-gray-500 leading-relaxed">{s.desc}</p>
@@ -387,11 +386,8 @@ export default function Home() {
             </div>
 
             {/* Live example */}
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden md:flex">
-              <div className="relative w-full md:w-2/5 h-56 md:h-auto flex-shrink-0">
-                <Image src={IMAGES.community} alt="Community targeting" fill className="object-cover" />
-              </div>
-              <div className="p-6 md:p-8 flex-1">
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+              <div className="p-6 md:p-8">
                 <span className="text-[10px] font-bold bg-blue-50 text-blue-600 px-2.5 py-1 rounded-full border border-blue-100">
                   Live Example
                 </span>
@@ -401,7 +397,7 @@ export default function Home() {
                 </p>
                 <div className="space-y-2">
                   {[
-                    { signal: 'Reddit: r/MexicanFood, r/FoodPorn, r/LocalEats', match: '94% relevance' },
+                    { signal: 'Reddit: r/MexicanFood, r/LocalEats', match: '94% relevance' },
                     { signal: 'Facebook Groups: "LA Foodies", "Taco Tuesday Club"', match: '91% relevance' },
                     { signal: 'Instagram: #MexicanFoodLA, #TacosOfInstagram', match: '88% relevance' },
                     { signal: 'Yelp Discussions: "Best Mexican in Downtown"', match: '86% relevance' },
@@ -421,10 +417,6 @@ export default function Home() {
             {/* What we scan */}
             <div className="grid md:grid-cols-2 gap-4">
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                <div className="relative w-full h-40">
-                  <Image src={IMAGES.audience} alt="Audience signals" fill className="object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-white via-white/30 to-transparent" />
-                </div>
                 <div className="p-5">
                   <h3 className="text-sm font-bold text-gray-900 mb-2">Public Signals We Analyze</h3>
                   <ul className="space-y-1.5">
@@ -446,10 +438,6 @@ export default function Home() {
               </div>
 
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                <div className="relative w-full h-40">
-                  <Image src={IMAGES.marketing} alt="Marketing results" fill className="object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-white via-white/30 to-transparent" />
-                </div>
                 <div className="p-5">
                   <h3 className="text-sm font-bold text-gray-900 mb-2">Why This Works Better</h3>
                   <div className="space-y-3">
@@ -473,21 +461,15 @@ export default function Home() {
             </div>
 
             {/* CTA */}
-            <div className="relative bg-gray-950 rounded-2xl overflow-hidden">
-              <div className="absolute inset-0 opacity-20">
-                <Image src={IMAGES.social} alt="" fill className="object-cover" />
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-r from-gray-950 via-gray-950/90 to-gray-950/70" />
-              <div className="relative p-10 md:p-14 text-center">
-                <p className="text-3xl md:text-4xl font-bold text-white mb-2">Your audience already exists.</p>
-                <p className="text-gray-400 mb-6">We just help you reach them where they&apos;re already paying attention.</p>
-                <button
-                  onClick={() => setTab('platform')}
-                  className="bg-blue-600 text-white font-bold text-sm px-8 py-3.5 rounded-xl hover:bg-blue-700 transition-colors"
-                >
-                  See the Full Platform
-                </button>
-              </div>
+            <div className="bg-gray-950 rounded-2xl p-10 md:p-14 text-center">
+              <p className="text-3xl md:text-4xl font-bold text-white mb-2">Your audience already exists.</p>
+              <p className="text-gray-400 mb-6">We just help you reach them where they&apos;re already paying attention.</p>
+              <button
+                onClick={() => setTab('platform')}
+                className="bg-blue-600 text-white font-bold text-sm px-8 py-3.5 rounded-xl hover:bg-blue-700 transition-colors"
+              >
+                See the Full Platform
+              </button>
             </div>
           </div>
         )}
@@ -506,78 +488,59 @@ export default function Home() {
                 desc: 'Set milestone-based rewards that trigger automatically. No manual tracking — customers earn, you retain.',
                 detail: '5 visits → free class, 10 → discount, 25 → merch, 50 → platinum tier',
                 stat: '2.3x repeat visit rate',
-                image: IMAGES.team,
               },
               {
                 title: 'Birthday Revenue Automation',
                 desc: 'Automatically sends offers 30 days before and on the day of each customer\'s birthday. Zero effort required.',
                 detail: 'Avg $45 incremental revenue per customer per year',
                 stat: '$45 avg revenue',
-                image: IMAGES.birthday,
               },
               {
                 title: 'ZIP-Code Smart Targeting',
                 desc: 'Segments your customers by proximity. Local members get same-day offers, commuters get weekend promos.',
                 detail: 'Local (<5 mi) vs commute (5-15 mi) — different messages, better results',
                 stat: '3x higher engagement',
-                image: IMAGES.location,
               },
               {
                 title: 'Product Affinity Engine',
                 desc: 'Identifies purchase patterns and cross-sells automatically. The right offer to the right customer at the right time.',
                 detail: 'Detects buying behavior → triggers personalized offers',
                 stat: '25% cross-sell rate',
-                image: IMAGES.shopping,
               },
               {
                 title: 'Churn Prevention Alerts',
                 desc: 'Detects when customers go inactive and triggers win-back campaigns before they\'re gone for good.',
                 detail: '10+ days inactive → automatic re-engagement offer',
                 stat: '15% retention lift',
-                image: IMAGES.retention,
               },
               {
                 title: 'Real-Time Analytics',
                 desc: 'Track LTV, retention cohorts, and campaign ROI in one dashboard. Know exactly what\'s working.',
                 detail: 'Full visibility into every metric that matters',
                 stat: 'Complete visibility',
-                image: IMAGES.growth,
               },
-            ].map((feature, i) => (
+            ].map((feature) => (
               <div
                 key={feature.title}
-                className={`bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden ${
-                  i % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'
-                } md:flex`}
+                className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 md:p-8"
               >
-                <div className="relative w-full md:w-2/5 h-48 md:h-auto flex-shrink-0">
-                  <Image src={feature.image} alt={feature.title} fill className="object-cover" />
-                </div>
-                <div className="p-6 md:p-8 flex-1 flex flex-col justify-center">
-                  <span className="text-[10px] font-bold bg-blue-50 text-blue-600 px-2.5 py-1 rounded-full border border-blue-100 self-start mb-3">
-                    {feature.stat}
-                  </span>
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">{feature.title}</h3>
-                  <p className="text-sm text-gray-500 leading-relaxed mb-3">{feature.desc}</p>
-                  <div className="bg-gray-50 rounded-lg px-4 py-2.5">
-                    <p className="text-xs text-gray-500">{feature.detail}</p>
-                  </div>
+                <span className="text-[10px] font-bold bg-blue-50 text-blue-600 px-2.5 py-1 rounded-full border border-blue-100 self-start mb-3 inline-block">
+                  {feature.stat}
+                </span>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">{feature.title}</h3>
+                <p className="text-sm text-gray-500 leading-relaxed mb-3">{feature.desc}</p>
+                <div className="bg-gray-50 rounded-lg px-4 py-2.5">
+                  <p className="text-xs text-gray-500">{feature.detail}</p>
                 </div>
               </div>
             ))}
 
-            <div className="relative bg-gray-950 rounded-2xl overflow-hidden">
-              <div className="absolute inset-0 opacity-30">
-                <Image src={IMAGES.marketing} alt="" fill className="object-cover" />
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-r from-gray-950 via-gray-950/90 to-gray-950/70" />
-              <div className="relative p-10 md:p-14 text-center">
-                <p className="text-4xl font-bold text-white mb-2">All of this. Fully automated.</p>
-                <p className="text-gray-400 mb-6">Set it up once. Kinetiq handles the rest.</p>
-                <button onClick={() => setTab('signup')} className="bg-blue-600 text-white font-bold text-sm px-8 py-3.5 rounded-xl hover:bg-blue-700 transition-colors">
-                  Get Started Free
-                </button>
-              </div>
+            <div className="bg-gray-950 rounded-2xl p-10 md:p-14 text-center">
+              <p className="text-4xl font-bold text-white mb-2">All of this. Fully automated.</p>
+              <p className="text-gray-400 mb-6">Set it up once. Kinetiq handles the rest.</p>
+              <button onClick={() => setTab('signup')} className="bg-blue-600 text-white font-bold text-sm px-8 py-3.5 rounded-xl hover:bg-blue-700 transition-colors">
+                Get Started Free
+              </button>
             </div>
           </div>
         )}
@@ -634,88 +597,15 @@ export default function Home() {
         )}
 
         {/* ─── Analytics ─── */}
-        {tab === 'analytics' && (
-          <div className="space-y-4">
-            <div className="text-center mb-8">
-              <p className="text-blue-600 text-xs font-bold uppercase tracking-wider mb-2">/ Analytics</p>
-              <h2 className="text-3xl font-bold text-gray-900">Real-Time Performance<br />Dashboard</h2>
-            </div>
-
-            <div className="relative w-full h-56 md:h-72 rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
-              <Image src={IMAGES.analytics} alt="Analytics dashboard" fill className="object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent" />
-              <div className="absolute bottom-4 left-6">
-                <p className="text-xs font-bold text-gray-500 bg-white/80 backdrop-blur px-3 py-1.5 rounded-full">
-                  Live Dashboard Preview
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {[
-                { label: 'Avg LTV', value: '$1,240', change: '+18%' },
-                { label: '90-Day Retention', value: '72%', change: '+15%' },
-                { label: 'Campaign ROI', value: '340%', change: '+22%' },
-                { label: 'Active Members', value: '1,847', change: '+9%' },
-              ].map((s) => (
-                <div key={s.label} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-                  <p className="text-xs text-gray-400 font-medium">{s.label}</p>
-                  <p className="text-2xl font-bold text-gray-900 mt-1">{s.value}</p>
-                  <span className="text-xs font-bold text-emerald-500">{s.change}</span>
-                </div>
-              ))}
-            </div>
-
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-              <h3 className="text-sm font-bold text-gray-900 mb-4">Retention by Cohort</h3>
-              <div className="space-y-3">
-                {[
-                  { cohort: 'Jan 2026', pct: 72 },
-                  { cohort: 'Feb 2026', pct: 68 },
-                  { cohort: 'Mar 2026', pct: 80 },
-                  { cohort: 'Apr 2026', pct: 76 },
-                ].map((row) => (
-                  <div key={row.cohort} className="flex items-center gap-3">
-                    <span className="text-xs text-gray-500 w-16 flex-shrink-0">{row.cohort}</span>
-                    <div className="flex-1 bg-gray-100 rounded-full h-6 overflow-hidden">
-                      <div className="bg-gradient-to-r from-gray-900 to-blue-600 rounded-full h-6 flex items-center" style={{ width: `${row.pct}%` }}>
-                        <span className="text-[10px] text-white font-bold px-2">{row.pct}%</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-              <h3 className="text-sm font-bold text-gray-900 mb-4">Campaign Performance</h3>
-              <div className="space-y-4">
-                {[
-                  { name: 'Birthday Offers', sent: 312, opened: '68%', revenue: '$14,040', roi: '420%' },
-                  { name: 'Community Targeting', sent: 1240, opened: '52%', revenue: '$22,300', roi: '510%' },
-                  { name: 'Win-Back Series', sent: 156, opened: '52%', revenue: '$4,680', roi: '280%' },
-                  { name: 'Merch Cross-Sell', sent: 423, opened: '38%', revenue: '$6,345', roi: '350%' },
-                ].map((c) => (
-                  <div key={c.name} className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-bold text-gray-900">{c.name}</p>
-                      <p className="text-xs text-gray-400">{c.sent} sent &middot; {c.opened} opened</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-bold text-gray-900">{c.revenue}</p>
-                      <p className="text-xs font-bold text-emerald-500">{c.roi} ROI</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
+        {tab === 'analytics' && <AnalyticsDashboard />}
 
         {/* ─── Create Ad ─── */}
         {tab === 'create-ad' && (
           <div className="max-w-lg mx-auto">
-            <CreateAdWizard />
+            <CreateAdWizard
+              defaultBusinessName={businessInfo.businessName}
+              defaultLocation={businessInfo.location}
+            />
           </div>
         )}
       </div>
