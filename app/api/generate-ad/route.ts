@@ -6,13 +6,17 @@ export async function POST(request: NextRequest) {
   const formData = await request.formData();
 
   const photo = formData.get('photo') as File | null;
+  const generatedImageUrl = formData.get('generated_image_url') as string | null;
   const businessName = formData.get('business_name') as string;
   const adGoal = formData.get('ad_goal') as string;
   const tone = formData.get('tone') as 'energetic' | 'professional' | 'warm';
   const location = (formData.get('location') as string) || undefined;
 
-  if (!photo) {
-    return NextResponse.json({ error: 'photo is required' }, { status: 400 });
+  if (!photo && !generatedImageUrl) {
+    return NextResponse.json(
+      { error: 'photo or generated_image_url is required' },
+      { status: 400 }
+    );
   }
 
   const { data: campaign, error: insertError } = await supabase
@@ -26,10 +30,14 @@ export async function POST(request: NextRequest) {
   }
 
   let photoUrl: string;
-  try {
-    photoUrl = await uploadPhoto(campaign.id, photo);
-  } catch {
-    return NextResponse.json({ error: 'Photo upload failed' }, { status: 400 });
+  if (photo) {
+    try {
+      photoUrl = await uploadPhoto(campaign.id, photo);
+    } catch {
+      return NextResponse.json({ error: 'Photo upload failed' }, { status: 400 });
+    }
+  } else {
+    photoUrl = generatedImageUrl!;
   }
 
   const variants = await generateAdVariants({ photoUrl, businessName, adGoal, tone, location });
